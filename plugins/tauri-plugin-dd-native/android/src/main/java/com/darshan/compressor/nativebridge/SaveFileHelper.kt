@@ -44,7 +44,10 @@ object SaveFileHelper {
     }
 
     private fun sanitize(filename: String): String {
-        val cleaned = filename.replace(Regex("[\\\\/:*?\"<>|\\x00-\\x1F]"), "_").trim()
+        val illegal = charArrayOf('\\', '/', ':', '*', '?', '"', '<', '>', '|')
+        val cleaned = filename.map { c -> if (c in illegal || c.code < 32) '_' else c }
+            .joinToString("")
+            .trim()
         return cleaned.ifEmpty { "compressed-file" }
     }
 
