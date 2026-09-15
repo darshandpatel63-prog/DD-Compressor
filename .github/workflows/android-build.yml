@@ -45,12 +45,23 @@ jobs:
       # native libraries — a Google Play requirement for new/updated apps.
       # See plugins/tauri-plugin-dd-native/android/build.gradle.kts for
       # where this connects to the rest of the build.
+      #
+      # local-cache is deliberately OFF. nttld/setup-ndk's cache for recent
+      # NDK versions has a confirmed failure mode: a "hit" can restore a
+      # tree containing the small per-API clang *wrapper scripts* (e.g.
+      # aarch64-linux-android26-clang) without the actual `clang` binary
+      # those scripts exec — the build gets well into compiling before
+      # failing with "clang: No such file or directory", which is exactly
+      # what happened here. The cache only saves on the order of tens of
+      # seconds on a multi-minute job, so it isn't worth that failure mode
+      # — see https://github.com/water-rs/waterui/issues/284 for another
+      # project hitting this same action/error and landing on the same fix.
       - name: Set up Android NDK
         id: setup-ndk
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r28
-          local-cache: true
+          local-cache: false
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
