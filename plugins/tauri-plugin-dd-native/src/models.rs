@@ -5,7 +5,13 @@ use serde::{Deserialize, Serialize};
 /// over the Tauri IPC bridge's JSON-shaped invoke() calls; see
 /// js/native-bridge.js for the size tradeoff this implies and why it's
 /// fine for this app's already-enforced file-size ceiling.
-#[derive(Debug, Clone, Deserialize)]
+///
+/// Needs BOTH directions of serde: Deserialize to parse it out of the
+/// JSON the JS side sends into the #[command] (see commands.rs), and
+/// Serialize because mobile.rs then turns around and sends this same
+/// struct on to the Kotlin plugin via run_mobile_plugin(), which
+/// serializes it to JSON again on the way out to the native side.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SaveFilePayload {
     pub filename: String,
