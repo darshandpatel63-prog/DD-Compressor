@@ -79,6 +79,8 @@ Everything Kotlin/Rust in this repository was written against current, verified 
 
 None of this affects the website — `web/` runs standalone with zero build step regardless of anything above.
 
+**Update:** this got its first real compiler run since being written (see the repo's Actions history). It got through dependency resolution, `tauri android init`, icon generation, and most of Rust compilation before catching one genuine bug: `SaveFilePayload` (in `plugins/tauri-plugin-dd-native/src/models.rs`) was missing `#[derive(Serialize)]` — it needs both directions of serde, since it's parsed from JSON coming in from the web page *and* re-serialized on the way out to the Kotlin plugin, and only the first direction was derived. Fixed now. Everything else the compiler had reached by that point (dependency resolution, the generated Android project, the `compileSdk`/`targetSdk` patch) checked out correctly, which is good signal for the rest of the pipeline.
+
 ### Signing a release build
 
 Play Store (and most other stores) need a **signed** build, not the debug APK above. This uses the standard Android signing setup, wired into the GitHub Actions workflow via four repository secrets:
